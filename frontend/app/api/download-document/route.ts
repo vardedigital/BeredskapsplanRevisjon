@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
           }),
 
           // Updated plan content
-          ...parseContentToParagraphs(planData.content),
+          ...parseContentToParagraphs(planData.content) as Paragraph[],
 
           // Page break before checklist
           new Paragraph({
