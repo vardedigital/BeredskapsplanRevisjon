@@ -28,8 +28,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse users and emails
-    const userNames = users.split('\n').map(u => u.trim()).filter(u => u)
-    const userEmailList = userEmails.split('\n').map(e => e.trim()).filter(e => e)
+    const userNames = users.split('\n').map((u: string) => u.trim()).filter((u: string) => u)
+    const userEmailList = userEmails.split('\n').map((e: string) => e.trim()).filter((e: string) => e)
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
