@@ -30,6 +30,58 @@ export async function POST(request: NextRequest) {
       .order('priority', { ascending: false })
 
     // Create Word document
+    const planParagraphs = parseContentToParagraphs(planData.content)
+    const changesParagraphs = (changesData || []).map(change => [
+      new Paragraph({
+        text: change.section,
+        heading: HeadingLevel.HEADING_2,
+        spacing: { before: 200, after: 100 }
+      }),
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: "Prioritet: ",
+            bold: true
+          }),
+          new TextRun(change.priority)
+        ],
+        spacing: { after: 100 }
+      }),
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: "Kilde: ",
+            bold: true
+          }),
+          new TextRun(change.source)
+        ],
+        spacing: { after: 100 }
+      }),
+      change.old_text ? new Paragraph({
+        children: [
+          new TextRun({
+            text: "Gammel tekst: ",
+            bold: true
+          }),
+          new TextRun({
+            text: change.old_text,
+            strike: true
+          })
+        ],
+        spacing: { after: 100 }
+      }) : null,
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: "Ny tekst: ",
+            bold: true
+          }),
+          new TextRun(change.new_text)
+        ],
+        spacing: { after: 300 }
+      })
+    ]).flat().filter((p): p is Paragraph => p !== null)
+
     const doc = new Document({
       sections: [{
         properties: {},
@@ -49,7 +101,7 @@ export async function POST(request: NextRequest) {
           }),
 
           // Updated plan content
-          ...parseContentToParagraphs(planData.content),
+          ...planParagraphs,
 
           // Page break before checklist
           new Paragraph({
@@ -65,56 +117,7 @@ export async function POST(request: NextRequest) {
           }),
 
           // Changes checklist
-          ...(changesData || []).map(change => [
-            new Paragraph({
-              text: change.section,
-              heading: HeadingLevel.HEADING_2,
-              spacing: { before: 200, after: 100 }
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "Prioritet: ",
-                  bold: true
-                }),
-                new TextRun(change.priority)
-              ],
-              spacing: { after: 100 }
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "Kilde: ",
-                  bold: true
-                }),
-                new TextRun(change.source)
-              ],
-              spacing: { after: 100 }
-            }),
-            change.old_text ? new Paragraph({
-              children: [
-                new TextRun({
-                  text: "Gammel tekst: ",
-                  bold: true
-                }),
-                new TextRun({
-                  text: change.old_text,
-                  strike: true
-                })
-              ],
-              spacing: { after: 100 }
-            }) : null,
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "Ny tekst: ",
-                  bold: true
-                }),
-                new TextRun(change.new_text)
-              ],
-              spacing: { after: 300 }
-            })
-          ]).flat().filter(Boolean)
+          ...changesParagraphs
         ]
       }]
     })
