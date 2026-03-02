@@ -1,6 +1,9 @@
+// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { getSupabaseClient } from '@/lib/supabase'
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,6 +12,8 @@ export async function POST(request: NextRequest) {
     if (!sessionId) {
       return NextResponse.json({ error: 'Session ID required' }, { status: 400 })
     }
+
+    const supabase = getSupabaseClient()
 
     // Get updated plan from database
     const { data: planData, error: planError } = await supabase

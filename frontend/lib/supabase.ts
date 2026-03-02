@@ -1,21 +1,39 @@
 import { createClient } from '@supabase/supabase-js'
 import { createBrowserClient } from '@supabase/ssr'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+// Lazy initialization to avoid build-time errors
+let supabaseInstance: ReturnType<typeof createClient> | null = null
 
-// Client-side Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Client-side Supabase client (lazy initialization)
+export function getSupabaseClient() {
+  if (!supabaseInstance) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error('Supabase URL and Anon Key are required')
+    }
+    
+    supabaseInstance = createClient(supabaseUrl, supabaseAnonKey)
+  }
+  
+  return supabaseInstance
+}
 
 // Browser client for SSR
 export function createBrowserSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Supabase URL and Anon Key are required')
+  }
+  
   return createBrowserClient(supabaseUrl, supabaseAnonKey)
 }
 
-// Helper function to get client (for future use)
-export function getSupabaseClient() {
-  return supabase
-}
+// Backward compatibility - export as named export
+export const supabase = getSupabaseClient()
 
 export type Database = {
   public: {

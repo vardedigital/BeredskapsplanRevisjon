@@ -3,6 +3,8 @@ import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -97,10 +99,10 @@ export async function POST(request: NextRequest) {
       <div class="section">
         <h3>👥 Brukere (${numUsers})</h3>
         <div class="label">Navn:</div>
-        <div class="value">${userNames.map((name, i) => `${i + 1}. ${name}`).join('<br>')}</div>
+        <div class="value">${userNames.map((name: string, i: number) => `${i + 1}. ${name}`).join('<br>')}</div>
         
         <div class="label">E-postadresser for tilgang:</div>
-        <div class="value">${userEmailList.map((email, i) => `${i + 1}. ${email}`).join('<br>')}</div>
+        <div class="value">${userEmailList.map((email: string, i: number) => `${i + 1}. ${email}`).join('<br>')}</div>
       </div>
 
       <div class="price-box">
