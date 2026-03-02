@@ -165,5 +165,5 @@ function parseContentToParagraphs(content: string): Paragraph[] {
       text: line,
       spacing: { after: 100 }
     })
-  })
+  }).filter((p): p is Paragraph => p !== null)
 }
