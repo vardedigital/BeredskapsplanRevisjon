@@ -429,7 +429,7 @@ function ChangeCard({ change, priority }: any) {
   )
 }
 
-function StatCard({ label, value, color, icon: Icon }: any) {
+function StatCard({ label, value, color, icon: Icon }: { label: string; value: number; color: "red" | "green" | "blue" | "purple" | "orange"; icon: any }) {
   const colorClasses = {
     red: 'bg-red-50 border-red-200 text-red-600',
     green: 'bg-green-50 border-green-200 text-green-600',
