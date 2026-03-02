@@ -1,9 +1,30 @@
 import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
+// Client-side Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+// Browser client for SSR
+export function createBrowserSupabaseClient() {
+  return createBrowserClient(supabaseUrl, supabaseAnonKey)
+}
+
+// Server client for SSR
+export function createServerSupabaseClient() {
+  const cookieStore = cookies()
+  return createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      get(name: string) {
+        return cookieStore.get(name)?.value
+      },
+    },
+  })
+}
 
 export type Database = {
   public: {
@@ -61,7 +82,7 @@ export type Database = {
           tenant_id: string
           email: string
           full_name?: string | null
-          role: 'beredskapskoordinator' | 'beredskapsradgiver' | 'admin' | 'viewer'
+          role?: 'beredskapskoordinator' | 'beredskapsradgiver' | 'admin' | 'viewer'
           created_at?: string
           last_login?: string | null
         }
