@@ -82,43 +82,46 @@ export async function POST(request: NextRequest) {
       })
     ]).flat().filter((p): p is Paragraph => p !== null)
 
+    // Build children array explicitly
+    const children: any[] = [
+      // Title
+      new Paragraph({
+        text: "Revidert Beredskapsplan",
+        heading: HeadingLevel.HEADING_1,
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 400 }
+      }),
+      
+      // Date
+      new Paragraph({
+        text: `Revisjonsdato: ${new Date().toLocaleDateString('nb-NO')}`,
+        spacing: { after: 600 }
+      }),
+
+      // Updated plan content
+      ...planParagraphs,
+
+      // Page break before checklist
+      new Paragraph({
+        text: "",
+        pageBreakBefore: true
+      }),
+
+      // Checklist title
+      new Paragraph({
+        text: "Endringslogg",
+        heading: HeadingLevel.HEADING_1,
+        spacing: { before: 400, after: 400 }
+      }),
+
+      // Changes checklist
+      ...changesParagraphs
+    ]
+
     const doc = new Document({
       sections: [{
         properties: {},
-        children: [
-          // Title
-          new Paragraph({
-            text: "Revidert Beredskapsplan",
-            heading: HeadingLevel.HEADING_1,
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 400 }
-          }),
-          
-          // Date
-          new Paragraph({
-            text: `Revisjonsdato: ${new Date().toLocaleDateString('nb-NO')}`,
-            spacing: { after: 600 }
-          }),
-
-          // Updated plan content
-          ...planParagraphs,
-
-          // Page break before checklist
-          new Paragraph({
-            text: "",
-            pageBreakBefore: true
-          }),
-
-          // Checklist title
-          new Paragraph({
-            text: "Endringslogg",
-            heading: HeadingLevel.HEADING_1,
-            spacing: { before: 400, after: 400 }
-          }),
-
-          // Changes checklist
-          ...changesParagraphs
-        ]
+        children: children
       }]
     })
 
