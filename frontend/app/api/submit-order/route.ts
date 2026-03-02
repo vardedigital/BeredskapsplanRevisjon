@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
     // Send email using Resend
     try {
       const { data, error } = await resend.emails.send({
-        from: 'Beredskapsplan Revisjon <onboarding@resend.dev>',
+        from: 'Beredskapsplan Revisjon <noreply@vardedigital.no>',
         to: ['kontakt@vardedigital.com'],
         subject: `Ny bestilling: ${municipalityName}`,
         html: emailHtml,
