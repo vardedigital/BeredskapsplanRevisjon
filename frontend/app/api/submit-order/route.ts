@@ -129,27 +129,20 @@ export async function POST(request: NextRequest) {
 
     // Send email using Resend
     try {
-      if (process.env.RESEND_API_KEY) {
-        const { data, error } = await resend.emails.send({
-          from: 'Beredskapsplan Revisjon <bestilling@beredskapsplanrevisjon.no>',
-          to: ['kontakt@vardedigital.com'],
-          subject: `Ny bestilling: ${municipalityName}`,
-          html: emailHtml,
-          replyTo: ordererEmail
-        })
+      const { data, error } = await resend.emails.send({
+        from: 'Beredskapsplan Revisjon <onboarding@resend.dev>',
+        to: ['kontakt@vardedigital.com'],
+        subject: `Ny bestilling: ${municipalityName}`,
+        html: emailHtml,
+        replyTo: ordererEmail
+      })
 
-        if (error) {
-          console.error('Resend error:', error)
-          throw error
-        }
-
-        console.log('Email sent successfully:', data)
-      } else {
-        console.warn('RESEND_API_KEY not set, logging email instead')
-        console.log('Email would be sent to: kontakt@vardedigital.com')
-        console.log('Subject:', `Ny bestilling: ${municipalityName}`)
-        console.log('HTML:', emailHtml)
+      if (error) {
+        console.error('Resend error:', error)
+        throw error
       }
+
+      console.log('Email sent successfully:', data)
     } catch (emailError) {
       console.error('Email sending error:', emailError)
       // Continue even if email fails, but log it
