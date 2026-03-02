@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
           }),
 
           // Updated plan content
-          ...parseContentToParagraphs(planData.content) as Paragraph[],
+          ...parseContentToParagraphs(planData.content),
 
           // Page break before checklist
           new Paragraph({
@@ -141,7 +141,9 @@ function parseContentToParagraphs(content: string): Paragraph[] {
   // Split content by newlines and create paragraphs
   const lines = content.split('\n').filter(line => line.trim())
   
-  return lines.map(line => {
+  const paragraphs: Paragraph[] = []
+  
+  for (const line of lines) {
     // Check if it's a heading (starts with #)
     if (line.startsWith('#')) {
       const level = line.match(/^#+/)?.[0].length || 1
@@ -153,17 +155,19 @@ function parseContentToParagraphs(content: string): Paragraph[] {
                           level === 5 ? HeadingLevel.HEADING_5 :
                           HeadingLevel.HEADING_6
       
-      return new Paragraph({
+      paragraphs.push(new Paragraph({
         text: line.replace(/^#+\s*/, ''),
         heading: headingLevel,
         spacing: { before: 200, after: 100 }
-      })
+      }))
+    } else {
+      // Regular paragraph
+      paragraphs.push(new Paragraph({
+        text: line,
+        spacing: { after: 100 }
+      }))
     }
-    
-    // Regular paragraph
-    return new Paragraph({
-      text: line,
-      spacing: { after: 100 }
-    })
-  }).filter((p): p is Paragraph => p !== null)
+  }
+  
+  return paragraphs
 }
