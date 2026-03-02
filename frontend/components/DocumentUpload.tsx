@@ -8,6 +8,7 @@ interface DocumentUploadProps {
   sessionId: string
   tenantId: string
   userId: string
+  language: 'bokmal' | 'nynorsk'
   onUploadComplete: () => void
 }
 
@@ -19,16 +20,16 @@ interface UploadedFile {
   error?: string
 }
 
-export default function DocumentUpload({ sessionId, tenantId, userId, onUploadComplete }: DocumentUploadProps) {
+export default function DocumentUpload({ sessionId, tenantId, userId, language, onUploadComplete }: DocumentUploadProps) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
   const [customInstructions, setCustomInstructions] = useState('')
   const [isUploading, setIsUploading] = useState(false)
 
   const requiredDocuments = [
     { type: 'ros', label: 'ROS-analyse', description: 'Helhetlig risiko- og sårbarhetsanalyse' },
-    { type: 'plan_integrert', label: 'Integrert beredskapsplan', description: 'Én samlet plan (alternativ A)' },
-    { type: 'plan_administrativ', label: 'Administrativ del', description: 'Administrativ del av planen (alternativ B)' },
-    { type: 'plan_operativ', label: 'Operativ del', description: 'Operativ del av planen (alternativ B)' }
+    { type: 'plan_integrert', label: 'Beredskapsplan (samla dokument)', description: 'inkludert vedlegg nevnte i planen' },
+    { type: 'plan_administrativ', label: 'Administrativ del', description: 'Dersom beredskapsplanen er delt i en administrativ og en operativ plan, last opp den som skal revideres og presiser i kommentarfeltet nedenfor. Det må gå tydelig frem hvilken plan skal revideres. Hugs å legge ved alle vedlegg nevnte i planen.' },
+    { type: 'plan_operativ', label: 'Operativ del', description: 'Dersom beredskapsplanen er delt i en administrativ og en operativ plan, last opp den som skal revideres og presiser i kommentarfeltet nedenfor. Det må gå tydelig frem hvilken plan skal revideres. Hugs å legge ved alle vedlegg nevnte i planen.' }
   ]
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
@@ -165,7 +166,7 @@ export default function DocumentUpload({ sessionId, tenantId, userId, onUploadCo
 
       {/* Required Documents Info */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="font-semibold text-blue-900 mb-3">Påkrevde dokumenter:</h3>
+        <h3 className="font-semibold text-blue-900 mb-3">Nødvendige dokument for best resultat:</h3>
         <ul className="space-y-2">
           {requiredDocuments.map(doc => (
             <li key={doc.type} className="flex items-start gap-2 text-sm text-blue-800">

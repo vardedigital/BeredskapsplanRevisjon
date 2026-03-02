@@ -7,11 +7,13 @@ import { supabase } from '@/lib/supabase'
 interface RevisionDashboardProps {
   sessionId: string
   language: 'bokmal' | 'nynorsk'
+  nynorskPreferences?: any
+  onComplete?: () => void
 }
 
 type TabType = 'overview' | 'plan' | 'changes' | 'exercises' | 'supervision'
 
-export default function RevisionDashboard({ sessionId, language }: RevisionDashboardProps) {
+export default function RevisionDashboard({ sessionId, language, nynorskPreferences, onComplete }: RevisionDashboardProps) {
   const [activeTab, setActiveTab] = useState<TabType>('overview')
   const [session, setSession] = useState<any>(null)
   const [changes, setChanges] = useState<any[]>([])
@@ -19,6 +21,7 @@ export default function RevisionDashboard({ sessionId, language }: RevisionDashb
   const [supervisionChecklist, setSupervisionChecklist] = useState<any[]>([])
   const [updatedPlan, setUpdatedPlan] = useState<string>('')
   const [loading, setLoading] = useState(true)
+  const [isDownloading, setIsDownloading] = useState(false)
 
   useEffect(() => {
     loadSessionData()
@@ -79,6 +82,41 @@ export default function RevisionDashboard({ sessionId, language }: RevisionDashb
 
   const mustChanges = changes.filter(c => c.priority === 'MUST')
   const shouldChanges = changes.filter(c => c.priority === 'SHOULD')
+
+  const handleDownloadDocument = async () => {
+    setIsDownloading(true)
+    try {
+      const response = await fetch('/api/download-document', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ sessionId })
+      })
+
+      if (!response.ok) {
+        throw new Error('Download failed')
+      }
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `revidert_beredskapsplan_${sessionId}.docx`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+
+      if (onComplete) {
+        onComplete()
+      }
+    } catch (error) {
+      alert('Nedlasting feilet. Prøv igjen.')
+    } finally {
+      setIsDownloading(false)
+    }
+  }
 
   const tabs = [
     { id: 'overview' as TabType, label: 'Oversikt', icon: Shield },
@@ -170,11 +208,25 @@ export default function RevisionDashboard({ sessionId, language }: RevisionDashb
       {/* Download Section */}
       <div className="bg-gray-50 rounded-lg p-6">
         <h3 className="font-semibold text-gray-900 mb-4">Last ned resultater</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           <DownloadButton label="Oppdatert plan" format="docx" />
           <DownloadButton label="Endringslogg" format="pdf" />
           <DownloadButton label="Øvingsplan" format="pdf" />
           <DownloadButton label="Tilsynsrapport" format="pdf" />
+        </div>
+        
+        {/* Complete and Download Button */}
+        <div className="mt-6 pt-6 border-t border-gray-200">
+          <p className="text-sm text-gray-600 mb-4">
+            Når du har sett over og er fornøyd med resultatet av revisjonen, kan du laste ned den nye reviderte versjonen som Word-dokument sammen med sjekklisten over alle endringer.
+          </p>
+          <button
+            onClick={handleDownloadDocument}
+            disabled={isDownloading}
+            className="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+          >
+            {isDownloading ? 'Laster ned...' : 'Fullfør og last ned revidert dokument (DOCX)'}
+          </button>
         </div>
       </div>
     </div>

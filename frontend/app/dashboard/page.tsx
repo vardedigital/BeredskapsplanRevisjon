@@ -20,6 +20,7 @@ export default function DashboardPage() {
   const [userId, setUserId] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [userEmail, setUserEmail] = useState<string>('')
+  const [municipalityName, setMunicipalityName] = useState<string>('')
 
   useEffect(() => {
     checkAuth()
@@ -51,6 +52,15 @@ export default function DashboardPage() {
 
       setTenantId(userData.tenant_id)
       setUserId(userData.id)
+
+      // Get municipality name
+      const { data: tenantData } = await supabase
+        .from('tenants')
+        .select('municipality_name')
+        .eq('id', userData.tenant_id)
+        .single()
+
+      setMunicipalityName(tenantData?.municipality_name || '')
 
       // Generate unique session ID
       const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
@@ -116,8 +126,8 @@ export default function DashboardPage() {
             <div className="flex items-center space-x-3">
               <Shield className="w-8 h-8 text-blue-600" />
               <div>
-                <h1 className="text-xl font-bold text-gray-900">BeredskapsPlanRevisjon</h1>
-                <p className="text-sm text-gray-600">{userEmail}</p>
+                <h1 className="text-xl font-bold text-gray-900">Beredskapsplan Revisjon</h1>
+                <p className="text-sm text-gray-600">{municipalityName} - {userEmail}</p>
               </div>
             </div>
             <button
