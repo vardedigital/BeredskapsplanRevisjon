@@ -12,6 +12,11 @@ export function createBrowserSupabaseClient() {
   return createBrowserClient(supabaseUrl, supabaseAnonKey)
 }
 
+// Helper function to get client (for future use)
+export function getSupabaseClient() {
+  return supabase
+}
+
 export type Database = {
   public: {
     Tables: {
